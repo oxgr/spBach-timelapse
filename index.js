@@ -108,11 +108,11 @@ async function captureImage( width, height, outputPath ) {
             //console.log({a,b,c});
             if ( success ) {
                 console.log( `Img captured: ${path.basename( outputPath )} ` );
-                resolve( success );
             } else {
                 process.stdout.write( 'Error on capture. Retrying... \r' )
-                resolve( await captureImage( width, height, outputPath ) );
+                await captureImage( width, height, outputPath );
             }
+            resolve ( true );
         } );
 
     } )
