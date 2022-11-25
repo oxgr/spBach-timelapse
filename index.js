@@ -57,7 +57,9 @@ async function startTimelapse( opts ) {
             const outPath = `images/${outName}.jpg`;
             process.stdout.write( `Seconds until next capture: ${remainingSeconds--} \r` );                
             
-            if ( remainingSeconds > 0 || cameraReady !== true ) {
+            if ( remainingSeconds > 0 
+                // || cameraReady !== true 
+                ) {
                 return;
             }
 
@@ -111,10 +113,11 @@ async function captureImage( width, height, outputPath ) {
             if ( success ) {
                 console.log( `Img captured: ${path.basename( outputPath )} ` );
             } 
-            // else {
+            else {
+                console.log( 'Error on capture.' )
             //     process.stdout.write( 'Error on capture. Retrying... \r' )
             //     setTimeout( async () => await captureImage( width, height, outputPath ), 1000 );    //  wait a second before retrying.
-            // }
+            }
             resolve ( true );
         } );
 
