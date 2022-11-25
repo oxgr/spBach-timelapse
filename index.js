@@ -43,7 +43,7 @@ async function startTimelapse( opts ) {
 	    const currentHour = date.getHours();
 	    const currentDay = date.getDay();
 	    if ( currentHour < startHour || currentHour >= endHour ||
-             currentDay == 0 || currentDay == 6 ) {
+             currentDay === 0 || currentDay === 6 ) {
 		process.stdout.write( `Timelapse paused. Current runtime is ${startHour}:00h-${endHour}:00h, Mon-Fri\r,` );
 		return;
 	    }
@@ -85,9 +85,9 @@ async function captureImage( width, height, outputPath ) {
     fswebcam.stderr.on( 'data', ( data ) => {
 	const msg = data.toString();
 	if ( msg.includes( 'Error' ) ) {
-	    //console.log( msg );
-	    process.stdout.write( 'Error on capture. Retrying... \r' ) 
-	    fswebcam.kill('SIGINT'); success = false; 
+	    //console.log( msg ); 
+	    fswebcam.kill('SIGINT'); 
+        success = false; 
 	}
     } )
 //{ throw new Error( data.toString() ) } )
@@ -98,9 +98,13 @@ async function captureImage( width, height, outputPath ) {
 
     fswebcam.on( 'exit', async ( a, b, c ) => {
 	//console.log({a,b,c});
-	if ( success ) console.log( `Img captured: ${path.basename( outputPath )} `);    
-        else await captureImage( width, height, outputPath );
-	resolve( success );
+	if ( success ) {
+        console.log( `Img captured: ${path.basename( outputPath )} `);    
+        resolve( success );
+    } else {
+        process.stdout.write( 'Error on capture. Retrying... \r' )
+        resolve ( await captureImage( width, height, outputPath ) );
+    }
     });
 
     })
