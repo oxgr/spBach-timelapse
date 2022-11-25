@@ -57,7 +57,7 @@ async function startTimelapse( opts ) {
             const outPath = `images/${outName}.jpg`;
             process.stdout.write( `Seconds until next capture: ${remainingSeconds--} \r` );                
             
-            if ( remainingSeconds > 0 || !!!cameraReady ) {
+            if ( remainingSeconds > 0 || cameraReady !== true ) {
                 return;
             }
 
