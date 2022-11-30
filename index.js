@@ -119,6 +119,7 @@ async function captureImage( width, height, outputPath, { verbose = false } = {}
     return new Promise( resolve => {
 
         fswebcam.on( 'exit', async () => {
+            console.log();
             if ( success ) {
                 console.log( `Img captured: ${path.basename( outputPath )} ` );
             } else {
