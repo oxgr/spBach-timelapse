@@ -5,72 +5,76 @@ import path from 'path';
 
 const ARGS = process.argv.slice( 2 );
 
-if ( ARGS.length === 0 ) {
-    // console.log( 'Please pass the interval in seconds as an argument!');
-    // process.exit();
-}
+const OPTS = {
 
-const opts = {
-    interval: ARGS.length > 0 ? ARGS[ 0 ] : 30, // interval in seconds
+    // interval in seconds
+    interval: ARGS.length > 0 ? ARGS[ 0 ] : 10,
+
     width: 1920,
     height: 1080,
+
+    // inclusive. 8  === 8am
+    firstHour: 8,
+
+    // inclusive. 18 === 6pm
+    lastHour: 18,
+
+    // inclusive. 1  === Monday
+    firstDay: 1,
+
+    // inclusive. 5  === Friday
+    lastDay: 5,
 }
 
 if ( ARGS[ 0 ] === 'test' ) {
     console.log( 'Taking test image...' );
-    captureImage( opts.width, opts.height, './test.jpg' );
+    await captureImage( OPTS.width, OPTS.height, './test.jpg', { verbose: true } );
     process.exit();
 }
 
-console.log( 'Starting timelapse with interval: %s seconds', opts.interval );
-startTimelapse( opts );
+console.log( 'Starting timelapse with interval: %s seconds', OPTS.interval );
+startTimelapse( OPTS );
 
 
-async function startTimelapse( opts ) {
+async function startTimelapse( OPTS ) {
 
-    const { interval, width, height } = opts;
+    const {
+        interval,
+        width,
+        height,
+        firstHour,
+        lastHour,
+        firstDay,
+        lastDay,
+    } = OPTS;
 
     let remainingSeconds = interval;
-    let count = 0;
     let cameraReady = true;
 
     return new Promise( resolve => {
         setInterval( async () => {
 
-            const startHour = 8,	// inclusive
-                endHour = 18;		// exclusive
-
             const date = new Date( Date.now() );
             const currentHour = date.getHours();
             const currentDay = date.getDay();
 
-            if ( 
-                currentHour < startHour || 
-                currentHour >= endHour ||
-                currentDay === 0 || 
-                currentDay === 6 ) {
-                process.stdout.write( `Timelapse paused. Current runtime is ${startHour}:00h-${endHour}:00h, Mon-Fri\r,` );
+            if ( currentHour < firstHour ||
+                currentHour > lastHour ||
+                currentDay < firstDay ||
+                currentDay > lastDay ) {
+
+                process.stdout.write( `Timelapse paused. Current runtime is ${startHour}:00h-${endHour}:00h, Mon-Fri\r` );
                 return;
+
             }
 
             const outName = ( Date.now() * 0.001 ).toFixed( 0 );
             const outPath = `images/${outName}.jpg`;
-            process.stdout.write( `Seconds until next capture: ${remainingSeconds--} \r` );                
-            
-            if ( remainingSeconds > 0 
-                // || cameraReady !== true 
-                ) {
-                return;
-            }
+            process.stdout.write( `Seconds until next capture: ${remainingSeconds--} \r` );
 
             remainingSeconds = interval;
             cameraReady = false;
             cameraReady = await captureImage( width, height, outPath );
-            //if ( success ) 
-            //console.log( `Img [${++count}]: ${outPath}`);
-            //else 
-            //    console.log('Error: Could not capture img [%d]. Retrying...', count);
-
 
         }, 1000 )
     } )
@@ -78,11 +82,7 @@ async function startTimelapse( opts ) {
 
 }
 
-
-//captureImage( `images/${( Date.now() * 0.001 ).toFixed( 0 )}.jpg` );
-
-
-async function captureImage( width, height, outputPath ) {
+async function captureImage( width, height, outputPath, { verbose = false } = {} ) {
     const fswebcam = spawn(
         'fswebcam', [
         '--no-banner',
@@ -96,29 +96,31 @@ async function captureImage( width, height, outputPath ) {
     fswebcam.stdout.on( 'data', ( data ) => console.log( data.toString() ) )
     fswebcam.stderr.on( 'data', ( data ) => {
         const msg = data.toString();
+
+        if ( !!!verbose ) console.log( msg );
+
         if ( msg.includes( 'Error' ) ) {
             //console.log( msg ); 
             fswebcam.kill( 'SIGINT' );
             success = false;
         }
     } )
-    //{ throw new Error( data.toString() ) } )
 
     fswebcam.on( 'error', ( a, b, c ) => { console.log( { a, b, c } ) } );
 
     return new Promise( resolve => {
 
-        fswebcam.on( 'exit', async ( a, b, c ) => {
-            //console.log({a,b,c});
+        fswebcam.on( 'exit', async () => {
             if ( success ) {
                 console.log( `Img captured: ${path.basename( outputPath )} ` );
-            } 
-            else {
+            } else {
                 console.log( 'Error on capture.' )
-            //     process.stdout.write( 'Error on capture. Retrying... \r' )
-            //     setTimeout( async () => await captureImage( width, height, outputPath ), 1000 );    //  wait a second before retrying.
+
+                //     process.stdout.write( 'Error on capture. Retrying... \r' )
+                //     setTimeout( async () => await captureImage( width, height, outputPath ), 1000 );    //  wait a second before retrying.
+
             }
-            resolve ( true );
+            resolve( true );
         } );
 
     } )
