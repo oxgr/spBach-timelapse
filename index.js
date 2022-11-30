@@ -2,6 +2,7 @@
 
 import { spawn } from 'child_process';
 import path from 'path';
+import { clearLine } from 'readline';
 
 const ARGS = process.argv.slice( 2 );
 
@@ -119,7 +120,7 @@ async function captureImage( width, height, outputPath, { verbose = false } = {}
     return new Promise( resolve => {
 
         fswebcam.on( 'exit', async () => {
-            console.log();
+            clearLine( process.stdout )
             if ( success ) {
                 console.log( `Img captured: ${path.basename( outputPath )} ` );
             } else {
