@@ -72,9 +72,16 @@ async function startTimelapse( OPTS ) {
             const outPath = `images/${outName}.jpg`;
             process.stdout.write( `\rSeconds until next capture: ${remainingSeconds--}` );
 
-            remainingSeconds = interval;
-            cameraReady = false;
-            cameraReady = await captureImage( width, height, outPath );
+            if ( remainingSeconds === 0 
+                // && !!cameraReady
+                ) {
+
+                remainingSeconds = interval;
+                cameraReady = false;
+                cameraReady = await captureImage( width, height, outPath );
+
+            }
+
 
         }, 1000 )
     } )
@@ -83,6 +90,7 @@ async function startTimelapse( OPTS ) {
 }
 
 async function captureImage( width, height, outputPath, { verbose = false } = {} ) {
+
     const fswebcam = spawn(
         'fswebcam', [
         '--no-banner',
