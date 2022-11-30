@@ -97,7 +97,7 @@ async function captureImage( width, height, outputPath, { verbose = false } = {}
     fswebcam.stderr.on( 'data', ( data ) => {
         const msg = data.toString();
 
-        if ( !!!verbose ) console.log( msg );
+        if ( !!verbose ) console.log( msg );
 
         if ( msg.includes( 'Error' ) ) {
             //console.log( msg ); 
