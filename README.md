@@ -11,9 +11,10 @@ A simple script to take jpg images from a USB webcam at set intervals to later t
 # Usage
 
 ```
-npm start <interval>
+npm start <interval> | test
 
 <interval>      The number of seconds to wait between each snapshot. Default is 10.
+test            Take a test image to the root directory. Defaults to a verbose output.
 ```
 
 Internally, the script calls `fswebcam`. Default options are defined in the `opts` object.
