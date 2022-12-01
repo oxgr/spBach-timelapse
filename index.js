@@ -64,7 +64,7 @@ async function startTimelapse( OPTS ) {
                 currentDay < firstDay ||
                 currentDay > lastDay ) {
 
-                process.stdout.write( `Timelapse paused. Current runtime is ${startHour}:00h-${endHour}:00h, Mon-Fri\r` );
+                process.stdout.write( `Timelapse paused. Current runtime is ${firstHour}:00h-${lastHour}:00h, Mon-Fri\r` );
                 return;
 
             }
