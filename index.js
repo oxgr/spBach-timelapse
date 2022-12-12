@@ -52,40 +52,43 @@ async function startTimelapse( OPTS ) {
     let remainingSeconds = interval;
     let cameraReady = true;
 
-    return new Promise( resolve => {
-        setInterval( async () => {
+    // return new Promise( resolve => {
+    //     setInterval( async () => {
 
-            const date = new Date( Date.now() );
-            const currentHour = date.getHours();
-            const currentDay = date.getDay();
+    while ( true ) {
+        const date = new Date( Date.now() );
+        const currentHour = date.getHours();
+        const currentDay = date.getDay();
 
-            if ( currentHour < firstHour ||
-                currentHour > lastHour ||
-                currentDay < firstDay ||
-                currentDay > lastDay ) {
+        if ( currentHour < firstHour ||
+            currentHour > lastHour ||
+            currentDay < firstDay ||
+            currentDay > lastDay ) {
 
-                process.stdout.write( `Timelapse paused. Current runtime is ${firstHour}:00h-${lastHour}:00h, Mon-Fri\r` );
-                return;
+            process.stdout.write( `Timelapse paused. Current runtime is ${firstHour}:00h-${lastHour}:00h, Mon-Fri\r` );
+            return;
 
-            }
+        }
 
-            const outName = ( Date.now() * 0.001 ).toFixed( 0 );
-            const outPath = `images/${outName}.jpg`;
-            process.stdout.write( `Seconds until next capture: ${remainingSeconds--} \r` );
+        const outName = ( Date.now() * 0.001 ).toFixed( 0 );
+        const outPath = `images/${outName}.jpg`;
+        process.stdout.write( `Seconds until next capture: ${remainingSeconds--} \r` );
 
-            if ( remainingSeconds === 0 
-                // && !!cameraReady
-                ) {
+        if ( remainingSeconds === 0
+            // && !!cameraReady
+        ) {
 
-                remainingSeconds = interval;
-                cameraReady = false;
-                cameraReady = await captureImage( width, height, outPath );
+            remainingSeconds = interval;
+            cameraReady = false;
+            cameraReady = await captureImage( width, height, outPath );
 
-            }
+        }
 
+        await sleep( 1000 )
 
-        }, 1000 )
-    } )
+    }
+    // }, 1000 )
+    // } )
 
 
 }
@@ -135,4 +138,8 @@ async function captureImage( width, height, outputPath, { verbose = false } = {}
 
     } )
 
+}
+
+async function sleep( ms = 1000 ) {
+    return new Promise( ( r ) => setTimeout( r, ms ) );
 }
