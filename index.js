@@ -111,8 +111,8 @@ async function captureImage( width, height, outputPath, { verbose = false } = {}
 
         if ( !!verbose ) console.log( msg );
 
-        if ( msg.includes( 'Error' ) ) {
-            //console.log( msg ); 
+        if ( msg.includes( 'Error' ) || msg.includes( 'stat:' ) ) {
+            console.log( msg ); 
             fswebcam.kill( 'SIGINT' );
             success = false;
         }
